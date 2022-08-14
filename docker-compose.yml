@@ -1,0 +1,50 @@
+version: "3.3"
+services:
+  proxy:
+    image: traefik:v2.2
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "8080:8080"
+      - "8888:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  backend:
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    depends_on:
+      - db
+    env_file:
+      - .env
+    build:
+      context: ./backend
+      dockerfile: backend.dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.rule=Path(`/api`) || Path(`/openapi.json`)"
+  frontend:
+    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
+    env_file:
+      - .env
+    build:
+      context: ./frontend
+      dockerfile: frontend.dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.rule=Path(`/`) || PathPrefix(`/css/`) || PathPrefix(`/js/`) || Path(`/favicon.ico`)"
+  db:
+    image: postgres:12
+    volumes:
+      - app-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+volumes:
+  app-db-data:
