@@ -3,3 +3,5 @@ gunicorn==20.1.0
 fastapi==0.68.1
 pydantic==1.9.2
 fastapi-mqtt==1.0.5
+SQLAlchemy==1.4.40
+psycopg2==2.9.3

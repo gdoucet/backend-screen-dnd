@@ -1,26 +1,19 @@
 from typing import Any
-from fastapi import APIRouter
-from app.core.mqtt import mqtt
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.crud.crud_client import client
+from app.db.db import get_db
 
 router = APIRouter()
 
-
-data = [
-    {
-        "name": "toto"
-    },
-    {
-        "name": "tata"
-    }
-]
-
-
 @router.get("/")
-def read_images() -> Any:
-    return data
-
+def read_images(db = Depends(get_db)) -> Any:
+    return client.get_multi(db)
 
 @router.get("/{id}")
-def read_image(id: int) -> Any:
-    mqtt.publish("/mqtt", "Hello from Fastapi")
-    return data[id]
+def read_image(id: int, db = Depends(get_db)) -> Any:
+    return client.get(db, id=id)
+
+@router.delete("/{id}")
+def delete_client(id: int, db = Depends(get_db)) -> Any:
+    return client.remove(db, id=id)
