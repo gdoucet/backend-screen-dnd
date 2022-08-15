@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
+set -eux
 cd /workspace/frontend
+npm install
 exec npm run serve

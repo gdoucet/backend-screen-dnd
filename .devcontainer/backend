@@ -2,5 +2,6 @@
 
 export PORT=8888
 export PYTHONPATH=/workspace/backend/app
-export MODULE_NAME=main
+export MODULE_NAME=app.main
+cd /workspace/backend/
 exec /bin/bash /workspace/backend/docker-images/start-reload.sh
